@@ -2,10 +2,16 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
 
 from config import Config
+from db import get_person
 
 
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text(f'Hello {update.effective_user.first_name}, your text: {update.message.text}')
+    person = get_person(update.effective_user.id, update.effective_chat.id)
+    await update.message.reply_text(
+        f'Hello {update.effective_user.first_name}, '
+        f'your text: {update.message.text}, '
+        f'your id: {person.id}'
+    )
 
 
 def run_tg_bot():

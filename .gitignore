@@ -3,3 +3,4 @@
 .tg.token
 venv
 .idea
+sqlite3.db
