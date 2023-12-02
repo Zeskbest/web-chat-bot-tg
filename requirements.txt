@@ -1,0 +1,3 @@
+openai>1<2
+python-telegram-bot>20<21
+sqlalchemy>2.0<2.1
