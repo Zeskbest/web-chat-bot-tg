@@ -23,4 +23,5 @@ def get_person(tg_user_id: int, tg_chat_id: int) -> Person:
     if person is None:
         person = Person(tg_user_id=tg_user_id, tg_chat_id=tg_chat_id)
         sess.add(person)
+        sess.commit()
     return person
