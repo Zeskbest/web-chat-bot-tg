@@ -1,8 +1,9 @@
 from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
+from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters, ConversationHandler, CommandHandler
 
 from config import Config
 from db import get_person
+from tg_conversation import get_recapcha_handler
 
 
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -17,6 +18,8 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 def run_tg_bot():
     app = ApplicationBuilder().token(Config.tg_token).build()
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
+    app.add_handler(get_recapcha_handler())
+
     app.run_polling()
 
 

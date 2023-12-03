@@ -1,6 +1,5 @@
-.gpt.org
-.gpt.secret
 .tg.token
 venv
 .idea
 sqlite3.db
+.gpt.login.pwd
