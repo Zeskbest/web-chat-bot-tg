@@ -4,5 +4,5 @@ def from_file(fname: str):
 
 
 class Config:
-    gpt_login, gpt_pwd = from_file(".gpt.login.pwd").split()
+    web_login, web_pwd = from_file(".web.login.pwd").split()
     tg_token = from_file(".tg.token")

@@ -3,3 +3,4 @@ venv
 .idea
 sqlite3.db
 .gpt.login.pwd
+chrome_driver

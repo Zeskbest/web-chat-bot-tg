@@ -29,7 +29,7 @@ READY, ASKED = range(2)
 ADMINS = {143185162}
 
 queue_to_ask = asyncio.Queue(maxsize=1)
-queue_answered = asyncio.Queue(maxsize=1)
+queue_to_answer = asyncio.Queue(maxsize=1)
 
 
 class Question:
@@ -89,7 +89,7 @@ async def ready(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
                 [question.reply_keys], one_time_keyboard=True, input_field_placeholder="Acknowledged"
             ),
         )
-        queue_answered.put_nowait(question)
+        queue_to_answer.put_nowait(question)
         return ASKED
 
 
@@ -98,9 +98,8 @@ async def asked(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.message.from_user
     if user not in ADMINS:
         return -1
-    question: Question = queue_to_ask.get_nowait()
+    question: Question = queue_to_answer.get_nowait()
     question.set_answer(update.message.text)
-    queue_answered.put_nowait(question)
     await update.message.reply_text(
         text=f"Ok",
         reply_markup=ReplyKeyboardRemove(),

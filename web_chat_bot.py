@@ -60,7 +60,7 @@ KEYS_TO_PRESS = {
 }
 
 
-class WebGpt:
+class WebChatBot:
 
     # def load_cookies(self):
     #     try:
@@ -75,20 +75,20 @@ class WebGpt:
     #             warn(f"Failed to load some cookies: {idx}/{len(cookies)}: {cookie}")
 
     def __init__(self, ask_human: Callable[[bytes, str, list[str]], Awaitable[str]]):
-        self.username = Config.gpt_login
-        self.password = Config.gpt_pwd
+        self.username = Config.web_login
+        self.password = Config.web_pwd
         # options = Options()
         # options.add_argument("--auto-open-devtools-for-tabs")
         # options.add_argument("--headless")
         # self.driver = webdriver.Firefox(options=options)
         # self.driver = webdriver.PhantomJS(desired_capabilities={"browserName": "Chrome","version": "13.0.782.41","platform": "Linux x86_64","javascriptEnabled": True,},service_args=["--disk-cache=true", "--ignore-ssl-errors=true", "--ssl-protocol=ANY"],)
-        chrome_options = Options()
-        # chrome_options.add_argument("--auto-open-devtools-for-tabs")
-        chrome_options.add_argument("--user-data-dir=./chrome_driver")
-        chrome_options.add_argument("--user-data-dir=./chrome_driver_user")
+        options = Options()
+        # options.add_argument("--auto-open-devtools-for-tabs")
+        options.add_argument("--headless")
+        options.add_argument("--user-data-dir=./chrome_driver")
         # self.driver = webdriver.Chrome(options=chrome_options)
-        self.driver = uc.Chrome(options=chrome_options, use_subprocess=True)
-        self.driver.get(URL)
+        self.driver = uc.Chrome(options=options, use_subprocess=True)  # todo false
+        # self.driver.get(URL)
         # self.load_cookies()
         self.ask_human = ask_human
 
@@ -159,25 +159,27 @@ class WebGpt:
     # @cookie_save
     def ask(self, text: str, chat_id: str = None) -> [str, str]:
         def get_answers():
-            return self.driver.find_elements(By.XPATH, '//div[contains(@class, "agent-turn")]/div')
+            return self.driver.find_elements(By.XPATH, '//div[contains(@class, "agent-turn")]')
 
-        if chat_id is None:
-            self.change_url(URL)
-        else:
+        if chat_id:
             self.change_url(f"{URL}/c/{chat_id}")
+        else:
+            self.change_url(URL)
 
         prompt = self.driver.find_element(By.ID, "prompt-textarea")
         prompt.send_keys(text)
         was_answers = len(get_answers())
         prompt.send_keys(Keys.ENTER)
         self.wait_for(lambda d: was_answers != len(get_answers()))
+        if chat_id is None:
+            sleep(1)
 
-        answer = self.driver.find_elements(By.XPATH, '//div[contains(@class, "agent-turn")]/div')[-1]
-        self.wait_for(lambda d: answer.text)
+        answer = get_answers()[-1]
+        self.wait_for(lambda d: answer.text.strip() not in ("", "ChatGPT"))
         result = ""
         while result != answer.text:
             result = answer.text
-            sleep(1)
+            sleep(3)
         if chat_id is None:
             chat_id = self.driver.current_url.split('/')[-1]
         return result, chat_id
@@ -209,17 +211,17 @@ async def ask_human(img, text, options):
 
 
 async def main():
-    gpt = WebGpt(ask_human)
+    web = WebChatBot(ask_human)
     try:
-        await gpt.init()
-        # answer = gpt.ask("What's the most effective weather prediction?")
-        answer = gpt.ask("Give me a list of his books (minimum 12).",
+        await web.init()
+        # answer = web.ask("What's the most effective weather prediction?")
+        answer = web.ask("Give me a list of his books (minimum 12).",
                          "6783dccd-ecfd-40cf-9f24-589ef581ed34")
         print(answer)
     finally:
         import io
         from PIL import Image
-        Image.open(io.BytesIO(gpt.driver.get_screenshot_as_png())).show()
+        Image.open(io.BytesIO(web.driver.get_screenshot_as_png())).show()
 
 
 if __name__ == '__main__':

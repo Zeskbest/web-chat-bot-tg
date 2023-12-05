@@ -13,6 +13,7 @@ class Person(Base):
     id = sa.Column(sa.Integer, primary_key=True)
     tg_user_id = sa.Column(sa.BigInteger)
     tg_chat_id = sa.Column(sa.BigInteger)
+    web_chat_id = sa.Column(sa.String(36))
 
 
 Base.metadata.create_all(bind=engine)
