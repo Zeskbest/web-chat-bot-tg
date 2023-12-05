@@ -1,6 +1,7 @@
 .tg.token
-venv
-.idea
+venv/
+.idea/
 sqlite3.db
 .web.login.pwd
-chrome_driver
+chrome_driver/
+__pycache__/
