@@ -9,6 +9,7 @@ from typing import Callable, Awaitable
 from warnings import warn
 
 import undetected_chromedriver as uc
+from pyvirtualdisplay import Display
 from selenium.common.exceptions import TimeoutException, UnableToSetCookieException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -84,7 +85,8 @@ class WebChatBot:
         # self.driver = webdriver.PhantomJS(desired_capabilities={"browserName": "Chrome","version": "13.0.782.41","platform": "Linux x86_64","javascriptEnabled": True,},service_args=["--disk-cache=true", "--ignore-ssl-errors=true", "--ssl-protocol=ANY"],)
         options = Options()
         # options.add_argument("--auto-open-devtools-for-tabs")
-        options.add_argument("--headless")
+        Display(visible=False, size=(800, 800)).start()  # instead of headless
+        # options.add_argument("--headless")
         options.add_argument("--user-data-dir=./chrome_driver")
         # self.driver = webdriver.Chrome(options=chrome_options)
         self.driver = uc.Chrome(options=options, use_subprocess=True)  # todo false
@@ -93,7 +95,7 @@ class WebChatBot:
         self.ask_human = ask_human
 
     def wait_for(self, condition):
-        WebDriverWait(self.driver, timeout=10).until(condition)
+        WebDriverWait(self.driver, timeout=60).until(condition)
 
     async def init(self):
         self.driver.get(URL)
@@ -179,7 +181,7 @@ class WebChatBot:
         result = ""
         while result != answer.text:
             result = answer.text
-            sleep(3)
+            sleep(5)
         if chat_id is None:
             chat_id = self.driver.current_url.split('/')[-1]
         return result, chat_id

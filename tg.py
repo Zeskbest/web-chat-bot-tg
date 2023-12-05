@@ -17,7 +17,12 @@ def run_tg_bot():
     chat_bot = WebChatBot(ask_human)
 
     async def post_init(app_):
-        await chat_bot.init()
+        try:
+            await chat_bot.init()
+        except Exception as e:
+            with open('./driver.png','wb') as f:
+                f.write(chat_bot.driver.get_screenshot_as_png())
+            raise
 
     async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         person = get_person(update.effective_user.id, update.effective_chat.id)
